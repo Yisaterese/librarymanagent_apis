@@ -31,7 +31,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: josephyisa/librarymanagement-api:latest
+          tags: josephyisa/librarymanagementapi:latest
 
       - name: Set up Cloudinary
         run: |

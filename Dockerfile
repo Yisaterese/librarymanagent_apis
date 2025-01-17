@@ -5,10 +5,10 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # Copy the jar file into the container
-COPY target/librarymanagement-api.jar /app/librarymanagement-api.jar
+COPY target/librarymanagementapi.jar /app/librarymanagementapi.jar
 
 # Expose the port the app runs on
 EXPOSE 8080
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "/app/librarymanagement-api.jar"]
+ENTRYPOINT ["java", "-jar", "/app/librarymanagementapi.jar"]
