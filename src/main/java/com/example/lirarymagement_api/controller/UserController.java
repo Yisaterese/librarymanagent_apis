@@ -1,11 +1,16 @@
 package com.example.lirarymagement_api.controller;
 
+import com.example.lirarymagement_api.dto.request.RegisterUserRequest;
+import com.example.lirarymagement_api.dto.request.UpdateUserRequest;
+import com.example.lirarymagement_api.dto.response.*;
 import com.example.lirarymagement_api.service.UserService;
+import com.github.fge.jsonpatch.JsonPatch;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/users")
@@ -15,8 +20,57 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(){
-        return null;
+    public ResponseEntity<?> register(@RequestBody RegisterUserRequest request) {
+        RegisterUserResponse response = userService.register(request);
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.CREATED, true, response), HttpStatus.CREATED);
     }
 
+    @PostMapping("/assign-role/{userId}")
+    public ResponseEntity<?> assignRole(@PathVariable Long userId) {
+        AssignRoleResponse response = userService.assignRole(userId);
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
+        UserResponse response = userService.getUserById(userId);
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getAllUsers() {
+        List<UserResponse> response = userService.getAllUsers();
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
+    }
+
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody JsonPatch patch, @RequestBody UpdateUserRequest request) {
+        UpdateUserResponse response = userService.updateUser(userId, patch, request);
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("delete_book/delete/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+        DeleteUserResponse response = userService.deleteUser(userId);
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
+    }
+
+    @PostMapping("/borrow/{userId}/{bookId}")
+    public ResponseEntity<?> borrowBook(@PathVariable Long userId, @PathVariable Long bookId) {
+        BorrowBookResponse response = userService.borrowBook(userId, bookId);
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
+    }
+
+    @PostMapping("/return/{userId}/{bookId}")
+    public ResponseEntity<?> returnBook(@PathVariable Long userId, @PathVariable Long bookId) {
+        ReturnBookResponse response = userService.returnBook(userId, bookId);
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
+    }
+
+    @GetMapping("/borrower/{logId}")
+    public ResponseEntity<?> getBookBorrower(@PathVariable Long logId) {
+        BorrowerResponse response = userService.getBookBorrower(logId);
+        return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
+    }
 }

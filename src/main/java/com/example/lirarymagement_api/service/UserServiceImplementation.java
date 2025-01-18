@@ -1,18 +1,27 @@
 package com.example.lirarymagement_api.service;
 
 import com.example.lirarymagement_api.data.constant.ACTIVITY;
-import com.example.lirarymagement_api.data.constant.ROLE;
 import com.example.lirarymagement_api.data.constant.STATUS;
 import com.example.lirarymagement_api.data.model.Book;
 import com.example.lirarymagement_api.data.model.Log;
 import com.example.lirarymagement_api.data.model.User;
 import com.example.lirarymagement_api.data.repository.UserRepository;
 import com.example.lirarymagement_api.dto.request.RegisterUserRequest;
+import com.example.lirarymagement_api.dto.request.UpdateUserRequest;
 import com.example.lirarymagement_api.dto.response.*;
 import com.example.lirarymagement_api.exception.ExistingUserException;
 import com.example.lirarymagement_api.exception.UserNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.lirarymagement_api.data.constant.ROLE.ADMIN;
 import static com.example.lirarymagement_api.data.constant.ROLE.USER;
@@ -36,7 +45,7 @@ public class UserServiceImplementation implements UserService{
     public RegisterUserResponse register(RegisterUserRequest request){
         validateUserRequest(request);
         User newUser = modelMapper.map(request, User.class);
-        newUser.setRole(USER);
+        newUser.setRoles(Collections.singleton(USER));
         newUser = userRepository.save(newUser);
         RegisterUserResponse response = modelMapper.map(newUser, RegisterUserResponse.class);
         response.setMessage("User registered successfully");
@@ -44,15 +53,50 @@ public class UserServiceImplementation implements UserService{
     }
 
     @Override
-    public AssignRoleResponse assignRole(Long userId, ROLE role) {
-        User user = getUserById(userId);
-        user.setRole(ADMIN);
+    public AssignRoleResponse assignRole(Long userId) {
+        User user = getUser(userId);
+        user.setRoles(Collections.singleton(ADMIN));
         user = userRepository.save(user);
         return modelMapper.map(user, AssignRoleResponse.class);
     }
 
-    private User getUserById(Long userId) {
+    private  User getUser(Long userId) {
             return userRepository.findById(userId).orElseThrow( ()-> new UserNotFoundException("User not found"));
+    }
+
+    @Override
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> modelMapper.map(user, UserResponse.class))
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public UpdateUserResponse updateUser(Long userId, JsonPatch patch, UpdateUserRequest request) {
+        try {
+            User user = getUser(userId);
+            User updatedUser = applyPatchToUser(patch, user);
+            modelMapper.map(request, updatedUser);
+            user = userRepository.save(updatedUser);
+            return modelMapper.map(user, UpdateUserResponse.class);
+        } catch (JsonPatchException | JsonProcessingException e) {
+            throw new RuntimeException("Failed to update user", e);
+        }
+    }
+
+    private User applyPatchToUser(JsonPatch patch, User targetUser) throws JsonPatchException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode patched = patch.apply(objectMapper.convertValue(targetUser, JsonNode.class));
+        return objectMapper.treeToValue(patched, User.class);
+    }
+
+
+    @Override
+    public DeleteUserResponse deleteUser(Long userId) {
+        User user = getUser(userId);
+        userRepository.delete(user);
+        return new DeleteUserResponse("Book deleted");
     }
 
     private void validateUserRequest(RegisterUserRequest request) {
@@ -62,8 +106,8 @@ public class UserServiceImplementation implements UserService{
     @Override
     public BorrowBookResponse borrowBook(Long userId, Long bookId) {
         validateIdNotNull(userId,bookId);// validate the user id and book id to avoid null inputs
-        Book foundBook = bookService.getBookById(bookId);
-        User user = getUserById(userId);
+        Book foundBook = bookService.getBook(bookId);
+        User user = getUser(userId);
         validateBookStatus(foundBook);//check the status of the book if  borrowed or not
         foundBook.setStatus(BORROWED);
         foundBook = bookService.persist(foundBook); //save the updated state of the book to the database
@@ -97,8 +141,8 @@ public class UserServiceImplementation implements UserService{
     @Override
     public ReturnBookResponse returnBook(Long userId, Long bookId) {
         validateIdNotNull(userId, bookId);
-        Book foundBook = bookService.getBookById(bookId);
-        User user = getUserById(userId);
+        Book foundBook = bookService.getBook(bookId);
+        User user = getUser(userId);
         // Check if the book is currently borrowed by the user
         validateBookIsBorrowedByTheUser(user,foundBook);
         // Update book status and persist
@@ -110,6 +154,12 @@ public class UserServiceImplementation implements UserService{
         returnBookResponse.setLogId(logResponse.getId());
         returnBookResponse.setMessage("Book returned successfully");
         return returnBookResponse;
+    }
+
+    @Override
+    public UserResponse getUserById(Long userId) {
+        User user = getUser(userId);
+        return modelMapper.map(user, UserResponse.class);
     }
 
     private void validateBookIsBorrowedByTheUser(User user, Book book) {

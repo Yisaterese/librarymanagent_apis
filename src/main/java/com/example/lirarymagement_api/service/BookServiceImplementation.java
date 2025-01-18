@@ -6,8 +6,6 @@ import com.example.lirarymagement_api.data.constant.ACTIVITY;
 import com.example.lirarymagement_api.data.model.Book;
 import com.example.lirarymagement_api.data.repository.BookRepository;
 import com.example.lirarymagement_api.dto.request.AddBookRequest;
-import com.example.lirarymagement_api.dto.request.DeleteBookRequest;
-import com.example.lirarymagement_api.dto.request.GetBookRequest;
 import com.example.lirarymagement_api.dto.request.UpdateBookRequest;
 import com.example.lirarymagement_api.dto.response.*;
 import com.example.lirarymagement_api.exception.BookNotFoundException;
@@ -29,38 +27,40 @@ import java.util.Map;
 import static com.example.lirarymagement_api.data.constant.STATUS.AVAILABLE;
 
 @Service
-public class BookServiceImplementation implements BookService{
-  private final BookRepository bookRepository;
-  private final ModelMapper  modelMapper;
-  private final ObjectMapper objectMapper;
-  private final Cloudinary cloudinary;
-  private LogService logService;
-  public BookServiceImplementation(BookRepository bookRepository, ModelMapper modelMapper, ObjectMapper objectMapper, Cloudinary cloudinary, LogService logService) {
-    this.bookRepository = bookRepository;
-    this.modelMapper = modelMapper;
-    this.objectMapper = objectMapper;
-    this.cloudinary = cloudinary;
-      this.logService = logService;
-  }
+public class BookServiceImplementation implements BookService {
+    private final BookRepository bookRepository;
+    private final ModelMapper modelMapper;
+    private final ObjectMapper objectMapper;
+    private final Cloudinary cloudinary;
+    private LogService logService;
 
-  @Override
-  public AddBookResponse addBook(AddBookRequest request){
-      validateRequest(request);
-      try{
-          Map<?,?> cloudUploadResponse = cloudinary.uploader().upload(request.getCoverImageUrl().getBytes(), ObjectUtils.asMap("resource_type", "auto"));
-          String coverImageUrl = cloudUploadResponse.get("url").toString();
-          Book book = modelMapper.map(request,Book.class);
-          book.setCoverImageUrl(coverImageUrl);
-          book.setStatus(AVAILABLE);
-          book = bookRepository.save(book);
-          logService.logActivity(null, book.getBookId(),"book added ", ACTIVITY.ADD_BOOK);
-          AddBookResponse response = modelMapper.map(book, AddBookResponse.class);
-          response.setMessage("Success");
-        return response;
-    }catch (IOException e){
-        throw new FailedToUploadBookException("Failed to add book");
+    public BookServiceImplementation(BookRepository bookRepository, ModelMapper modelMapper, ObjectMapper objectMapper, Cloudinary cloudinary, LogService logService) {
+        this.bookRepository = bookRepository;
+        this.modelMapper = modelMapper;
+        this.objectMapper = objectMapper;
+        this.cloudinary = cloudinary;
+        this.logService = logService;
     }
-  }
+
+    @Override
+    public AddBookResponse addBook(AddBookRequest request) {
+        validateRequest(request);
+        try {
+            Map<?, ?> cloudUploadResponse = cloudinary.uploader().upload(request.getCoverImageUrl().getBytes(), ObjectUtils.asMap("resource_type", "auto"));
+            String coverImageUrl = cloudUploadResponse.get("url").toString();
+            Book book = modelMapper.map(request, Book.class);
+            book.setCoverImageUrl(coverImageUrl);
+            book.setStatus(AVAILABLE);
+            book = bookRepository.save(book);
+            logService.logActivity(null, book.getBookId(), "book added ", ACTIVITY.ADD_BOOK);
+            AddBookResponse response = modelMapper.map(book, AddBookResponse.class);
+            response.setMessage("Success");
+            return response;
+        } catch (IOException e) {
+            throw new FailedToUploadBookException("Failed to add book");
+        }
+    }
+
 
     private void validateRequest(AddBookRequest request) {
         if (request.getIsbn() == null || request.getIsbn().trim().isEmpty()) {
@@ -83,27 +83,15 @@ public class BookServiceImplementation implements BookService{
         }
     }
 
-    private boolean isValidIsbn(String isbn) {
-        String isbn10Format = "^(?:\\d[\\ |-]?){9}[\\d|X]$";
-        String isbn13Format = "^(?:\\d[\\ |-]?){13}$";
-        return isbn.matches(isbn10Format) || isbn.matches(isbn13Format);    }
-
-
-
-
-    @Override
-  public GetBookResponse getBookById(GetBookRequest request){
-        Book book = getBook(request.getId());
-        GetBookResponse response = modelMapper.map(book, GetBookResponse.class);
-        response.setMessage("Success");
-        return response;
-}
-
+    private boolean isValidIsbn(java.lang.String isbn) {
+        java.lang.String isbn10Format = "^(?:\\d[\\ |-]?){9}[\\d|X]$";
+        java.lang.String isbn13Format = "^(?:\\d[\\ |-]?){13}$";
+        return isbn.matches(isbn10Format) || isbn.matches(isbn13Format);
+    }
 
 @Override
-public GetBookResponse getBookByIsbn(GetBookRequest request) {
-    Book book = bookRepository.findByIsbn(request.getIsbn())
-            .orElseThrow(() -> new BookNotFoundException("Book not found" ));
+public GetBookResponse getBookByIsbn(String isbn) {
+    Book book = bookRepository.findByIsbn(isbn).orElseThrow(()-> new BookNotFoundException("Book not found"));
     GetBookResponse response = modelMapper.map(book, GetBookResponse.class);
     response.setMessage("Success");
     return response;
@@ -111,8 +99,8 @@ public GetBookResponse getBookByIsbn(GetBookRequest request) {
 
 
 @Override
-public DeleteBookResponse deleteBook(DeleteBookRequest request) {
-    Book book = getBook(request.getId());
+public DeleteBookResponse deleteBook(Long id) {
+    Book book = getBook(id);
     bookRepository.delete(book);
     DeleteBookResponse response = modelMapper.map(book,DeleteBookResponse.class);
     response.setMessage("Book deleted successfully");
@@ -126,13 +114,6 @@ public DeleteBookResponse deleteBook(DeleteBookRequest request) {
 }
 
 
-private Book getBook(Long id){
-  Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("Book not found"));
-  validateBookNotNull(book);
-  return book;
-}
-
-
 
 @Override
 public List<BooksResponse> getAllBooks() {
@@ -140,13 +121,26 @@ public List<BooksResponse> getAllBooks() {
   if (books.isEmpty()) {
       throw new BookNotFoundException("No books found");
   }
-  // Map each Book to a BooksResponse using ModelMapper
   return books.stream()
           .map(book -> modelMapper.map(book, BooksResponse.class))
           .toList();
 }
 
-@Override
+    @Override
+    public GetBookResponse getBookById(Long id) {
+        Book book = getBook(id);
+        GetBookResponse response = modelMapper.map(book, GetBookResponse.class);
+        response.setMessage("Success");
+        return response;
+    }
+    @Override
+    public Book getBook(Long id){
+        Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("Book not found"));
+        validateBookNotNull(book);
+        return book;
+    }
+
+    @Override
 public UpdateBookResponse updateBook(JsonPatch patch, UpdateBookRequest request) {
     try {
         Book book = getBook(request.getId());
@@ -163,10 +157,6 @@ public UpdateBookResponse updateBook(JsonPatch patch, UpdateBookRequest request)
     }
 }
 
-    @Override
-    public Book getBookById(Long userId) {
-        return bookRepository.findById(userId).orElseThrow(()->new BookNotFoundException("Book not found"));
-    }
 
     @Override
     public Book persist(Book foundbook) {

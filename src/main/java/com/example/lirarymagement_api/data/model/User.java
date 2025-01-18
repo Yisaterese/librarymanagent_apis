@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 
 @Getter
@@ -26,7 +27,7 @@ public class User {
     @NotBlank(message = "Password is required")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{7,}$", message = "Password must be at least 7 characters long, contain at least one letter, one number, and one special character")
     private String password;
-    private ROLE role;
+    private Set<ROLE> roles;
     private LocalDateTime time;
 
 

@@ -3,7 +3,6 @@ package com.example.lirarymagement_api.service;
 import com.cloudinary.Cloudinary;
 import com.example.lirarymagement_api.data.repository.BookRepository;
 import com.example.lirarymagement_api.dto.request.AddBookRequest;
-import com.example.lirarymagement_api.dto.request.GetBookRequest;
 import com.example.lirarymagement_api.dto.response.AddBookResponse;
 import com.example.lirarymagement_api.dto.response.GetBookResponse;
 import com.example.lirarymagement_api.exception.BookNotFoundException;
@@ -158,7 +157,7 @@ public class BookServiceTest {
 
     @Test
     public void getBookById(){
-        GetBookRequest request = new GetBookRequest();
+        String request = new String();
         request.setId(1L);
        GetBookResponse response = bookService.getBookById(request);
        assertThat(response.getMessage()).contains( "Success");
@@ -166,7 +165,7 @@ public class BookServiceTest {
     }
     @Test
     public void getBookByIdWithInvalidId_throwsExceptionTest(){
-        GetBookRequest request = new GetBookRequest();
+        String request = new String();
         request.setId(2L);
         assertThrows(BookNotFoundException.class, () -> bookService.getBookById(request));
     }
