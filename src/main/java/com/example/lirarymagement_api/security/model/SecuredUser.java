@@ -21,6 +21,7 @@ public class SecuredUser implements UserDetails {
     }
 
     @Override
+
     public String getPassword() {
         return getPassword();
     }

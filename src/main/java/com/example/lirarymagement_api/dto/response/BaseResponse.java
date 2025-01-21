@@ -2,8 +2,7 @@ package com.example.lirarymagement_api.dto.response;
 
 import lombok.*;
 import org.springframework.http.HttpStatus;
-
-
+@NoArgsConstructor
 public class BaseResponse  <T>{
     private HttpStatus code;
     private boolean status;

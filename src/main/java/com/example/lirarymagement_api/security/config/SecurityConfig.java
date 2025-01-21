@@ -1,7 +1,5 @@
 package com.example.lirarymagement_api.security.config;
 
-import com.example.lirarymagement_api.data.constant.ROLE;
-import com.example.lirarymagement_api.data.constant.STATUS;
 import com.example.lirarymagement_api.security.filters.CustomAuthorizationFilter;
 import com.example.lirarymagement_api.security.filters.CustomUsernamePasswordAuthenticationFilter;
 import lombok.AllArgsConstructor;

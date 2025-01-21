@@ -17,9 +17,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,12 +34,18 @@ public class UserServiceImplementation implements UserService{
    private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final BookService bookService;
+    private final PasswordEncoder passwordEncoder;
     private final LogService logService;
 
-    public UserServiceImplementation(UserRepository userRepository, ModelMapper modelMapper, BookService bookService, LogService logService) {
+    public UserServiceImplementation(UserRepository userRepository,
+                                     ModelMapper modelMapper,
+                                     BookService bookService,
+                                     PasswordEncoder passwordEncoder,
+                                     LogService logService) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.bookService = bookService;
+        this.passwordEncoder = passwordEncoder;
         this.logService = logService;
     }
 
@@ -45,7 +53,9 @@ public class UserServiceImplementation implements UserService{
     public RegisterUserResponse register(RegisterUserRequest request){
         validateUserRequest(request);
         User newUser = modelMapper.map(request, User.class);
-        newUser.setRoles(Collections.singleton(USER));
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setRoles(new HashSet<>());
+        newUser.getRoles().add(USER);
         newUser = userRepository.save(newUser);
         RegisterUserResponse response = modelMapper.map(newUser, RegisterUserResponse.class);
         response.setMessage("User registered successfully");
