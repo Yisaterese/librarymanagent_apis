@@ -16,6 +16,7 @@ import lombok.Setter;
 @Entity
 public class Log {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long Id;
   private Long userId ;
   private Long bookId;

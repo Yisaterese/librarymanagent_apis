@@ -9,7 +9,7 @@ import com.example.lirarymagement_api.dto.response.*;
 import com.github.fge.jsonpatch.JsonPatch;
 
 public interface BookService {
-  public AddBookResponse addBook(AddBookRequest request);
+  public Book create(AddBookRequest request);
   public DeleteBookResponse deleteBook(Long request);
 
 
@@ -23,5 +23,5 @@ public interface BookService {
   UpdateBookResponse updateBook(JsonPatch patch, UpdateBookRequest request);
 
 
-  Book persist(Book  book);
+  com.example.lirarymagement_api.data.model.Book persist(com.example.lirarymagement_api.data.model.Book book);
 }

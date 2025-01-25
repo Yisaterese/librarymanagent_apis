@@ -1,5 +1,6 @@
 package com.example.lirarymagement_api.controller;
 
+import com.example.lirarymagement_api.data.model.Book;
 import com.example.lirarymagement_api.dto.request.AddBookRequest;
 import com.example.lirarymagement_api.dto.request.UpdateBookRequest;
 import com.example.lirarymagement_api.dto.response.*;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/book")
 public class BookController {
 
     private final BookServiceImplementation bookService;
@@ -21,11 +22,7 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @PostMapping("add_book")
-    public ResponseEntity<?> addBook(@RequestBody AddBookRequest request) {
-        AddBookResponse response = bookService.addBook(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
+   
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookById(@PathVariable Long id) {

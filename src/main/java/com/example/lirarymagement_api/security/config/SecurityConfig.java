@@ -1,5 +1,6 @@
 package com.example.lirarymagement_api.security.config;
 
+import com.example.lirarymagement_api.data.constant.ROLE;
 import com.example.lirarymagement_api.security.filters.CustomAuthorizationFilter;
 import com.example.lirarymagement_api.security.filters.CustomUsernamePasswordAuthenticationFilter;
 import lombok.AllArgsConstructor;
@@ -31,8 +32,9 @@ public class SecurityConfig {
                 .addFilterAt(authenticationFilter, BasicAuthenticationFilter.class)
                 .addFilterBefore(customAuthorizationFilter,CustomUsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(c->c.requestMatchers("/api/auth").permitAll()
-                        .requestMatchers("/api/user/**").permitAll()
-                        .requestMatchers("/api/register").permitAll()
+                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/users/add_book").hasRole(ROLE.ADMIN.toString())
+                        .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/book/**").permitAll()
                 ).build();
     }

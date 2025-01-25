@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -22,9 +23,9 @@ import java.util.List;
 
 import static com.example.lirarymagement_api.security.utils.SecurityUtils.JWT_PREFIX;
 import static com.example.lirarymagement_api.security.utils.SecurityUtils.PUBLIC_ENDPOINT;
-
+@Component
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -47,14 +48,9 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             System.out.println(userDetails);
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
         }
-
         filterChain.doFilter(request, response);
-
     }
-
 
 }

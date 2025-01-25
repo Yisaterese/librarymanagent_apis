@@ -1,5 +1,7 @@
 package com.example.lirarymagement_api.controller;
 
+import com.example.lirarymagement_api.data.model.Book;
+import com.example.lirarymagement_api.dto.request.AddBookRequest;
 import com.example.lirarymagement_api.dto.request.RegisterUserRequest;
 import com.example.lirarymagement_api.dto.request.UpdateUserRequest;
 import com.example.lirarymagement_api.dto.response.*;
@@ -24,6 +26,11 @@ public class UserController {
         RegisterUserResponse response = userService.register(request);
         return new ResponseEntity<>(new BaseResponse(HttpStatus.CREATED, true, response), HttpStatus.CREATED);
     }
+    @PostMapping("add_book")
+    public ResponseEntity<?> addBook(@RequestBody AddBookRequest request) {
+        AddBookResponse response = userService.addBook(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
     @PostMapping("/assign-role/{userId}")
     public ResponseEntity<?> assignRole(@PathVariable Long userId) {
@@ -44,7 +51,7 @@ public class UserController {
     }
 
     @PutMapping("/update/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody JsonPatch patch, @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, JsonPatch patch, @RequestBody UpdateUserRequest request) {
         UpdateUserResponse response = userService.updateUser(userId, patch, request);
         return new ResponseEntity<>(new BaseResponse(HttpStatus.OK, true, response), HttpStatus.OK);
     }

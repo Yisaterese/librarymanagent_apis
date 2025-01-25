@@ -1,6 +1,7 @@
 package com.example.lirarymagement_api.service;
 
 import com.example.lirarymagement_api.data.constant.ROLE;
+import com.example.lirarymagement_api.dto.request.AddBookRequest;
 import com.example.lirarymagement_api.dto.request.RegisterUserRequest;
 import com.example.lirarymagement_api.dto.request.UpdateUserRequest;
 import com.example.lirarymagement_api.dto.response.*;
@@ -19,6 +20,8 @@ public interface UserService {
     BorrowBookResponse borrowBook(Long userId, Long bookId);
 
     BorrowerResponse getBookBorrower(Long id);
+
+    AddBookResponse addBook(AddBookRequest request);
 
     ReturnBookResponse returnBook(Long userId, Long bookId);
 

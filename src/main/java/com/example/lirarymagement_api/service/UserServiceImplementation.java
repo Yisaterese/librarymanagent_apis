@@ -6,6 +6,7 @@ import com.example.lirarymagement_api.data.model.Book;
 import com.example.lirarymagement_api.data.model.Log;
 import com.example.lirarymagement_api.data.model.User;
 import com.example.lirarymagement_api.data.repository.UserRepository;
+import com.example.lirarymagement_api.dto.request.AddBookRequest;
 import com.example.lirarymagement_api.dto.request.RegisterUserRequest;
 import com.example.lirarymagement_api.dto.request.UpdateUserRequest;
 import com.example.lirarymagement_api.dto.response.*;
@@ -65,7 +66,7 @@ public class UserServiceImplementation implements UserService{
     @Override
     public AssignRoleResponse assignRole(Long userId) {
         User user = getUser(userId);
-        user.setRoles(Collections.singleton(ADMIN));
+        user.getRoles().add(ADMIN);
         user = userRepository.save(user);
         return modelMapper.map(user, AssignRoleResponse.class);
     }
@@ -147,6 +148,21 @@ public class UserServiceImplementation implements UserService{
         response.setMessage("success");
         return response;
     }
+    @Override
+    public AddBookResponse addBook(AddBookRequest request){
+       // validateUserRole(request);
+        Book book = bookService.create(request);
+        LogResponse log = logService.logActivity(request.getUserId(), book.getBookId(), request.getDescription(), ACTIVITY.ADD_BOOK);
+        AddBookResponse response = modelMapper.map(book, AddBookResponse.class);
+        response.setLogId(log.getId());
+        return  response;
+    }
+
+
+    private void validateUserRole(AddBookRequest request) {
+        User user = getUser(request.getUserId());
+        if(!user.getRoles().contains(ADMIN)) throw new IllegalStateException("User not allowed");
+    }
 
     @Override
     public ReturnBookResponse returnBook(Long userId, Long bookId) {
@@ -171,6 +187,10 @@ public class UserServiceImplementation implements UserService{
         User user = getUser(userId);
         return modelMapper.map(user, UserResponse.class);
     }
+
+
+
+
 
     private void validateBookIsBorrowedByTheUser(User user, Book book) {
         if (book.getStatus() != STATUS.BORROWED || !logService.isBookBorrowedByUser(book.getBookId(), user.getUserId())) { throw new RuntimeException("The book is not borrowed by this user"); } }

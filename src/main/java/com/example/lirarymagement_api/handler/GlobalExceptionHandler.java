@@ -8,14 +8,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(LibraryManagementException.class)
-    public ResponseEntity<?> handleLibrarymanagementException(LibraryManagementException exception) {
+    public ResponseEntity<?> handleLibrar21anagementException(LibraryManagementException exception) {
         return ResponseEntity.status(BAD_REQUEST)
                 .body(Map.of(
                         "error", exception.getMessage(),
@@ -45,5 +44,14 @@ public class GlobalExceptionHandler {
                 .body(Map.of(
                         "error", exception.getMessage(),
                         "success", false));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<?> handleIllegalStateException(IllegalStateException exception){
+        return  ResponseEntity.status(UNAUTHORIZED)
+                .body(Map.of(
+                        "error", "not authorized",
+                        "success", false
+                ));
     }
 }

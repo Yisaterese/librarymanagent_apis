@@ -18,15 +18,18 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long userId;
     @NotNull
     @Column(unique = true, nullable = false)
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Invalid email format. Please provide a valid email address.")
     private String email;
-    private String username = "username";
+    private String username;
     @NotBlank(message = "Password is required")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{7,}$", message = "Password must be at least 7 characters long, contain at least one letter, one number, and one special character")
     private String password;
+    @Enumerated(EnumType.STRING)
     private Set<ROLE> roles;
     private LocalDateTime time;
 
@@ -35,4 +38,5 @@ public class User {
     protected void onCreate() {
         time = LocalDateTime.now();
     }
+
 }
