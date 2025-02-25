@@ -19,8 +19,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'  # Use OpenJDK (Temurin)
-          java-version: '17'       # Change to your Java version
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Cache Maven dependencies
         uses: actions/cache@v3
@@ -31,6 +31,9 @@ jobs:
 
       - name: Build JAR file with Maven
         run: mvn clean package -DskipTests
+
+      - name: Verify JAR file exists
+        run: ls -lah target/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
