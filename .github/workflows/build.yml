@@ -50,7 +50,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: josephyisa/libraryManagementSystem:latest
+          tags: josephyisa/librarymanagementsystem:latest
 
       - name: Set up Cloudinary and Database Environment Variables
         run: |
