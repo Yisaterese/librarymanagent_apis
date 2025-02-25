@@ -11,4 +11,4 @@ COPY target/librarymanagementsystem.jar /app/librarymanagementsystem.jar
 EXPOSE 8080
 
 # Run the JAR file
-CMD ["java", "-jar", "/app/librarymanagementsystem.jar"]
+CMD ["java", "-jar", "/app/libraryManagementSystem.jar"]
