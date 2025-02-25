@@ -67,6 +67,7 @@ public class UserServiceImplementation implements UserService {
     @Override
     public AssignRoleResponse assignRole(Long userId) {
         User user = getUser(userId);
+        validateRole(user);
         user.getRoles().add(ADMIN);
         user = userRepository.save(user);
        AssignRoleResponse response = modelMapper.map(user, AssignRoleResponse.class);
@@ -74,6 +75,11 @@ public class UserServiceImplementation implements UserService {
         return response;
     }
 
+    private void validateRole(User user) {
+        if (user.getRoles().contains( ADMIN)) {
+            throw new RuntimeException("User has role ADMIN");
+        }
+    }
 
 
     @Override
@@ -111,9 +117,12 @@ public class UserServiceImplementation implements UserService {
         return new DeleteUserResponse("user deleted successfully");
     }
 
+
     private void validateUserRequest(RegisterUserRequest request) {
         if(userRepository.existsByEmail(request.getEmail()))throw new ExistingUserException("Email taken");
     }
+
+
 
     @Override
     public BorrowBookResponse borrowBook(Long userId, Long bookId) {
@@ -128,6 +137,8 @@ public class UserServiceImplementation implements UserService {
         borrowBookResponse.setLogId(logResponse.getId());
         return borrowBookResponse;
     }
+
+
 
     private void validateBookStatus(Book book) {
         if (book.getStatus() == BORROWED) {
@@ -154,9 +165,11 @@ public class UserServiceImplementation implements UserService {
         Book book = bookService.create(request);
         LogResponse log = logService.logActivity(request.getUserId(), book.getBookId(), request.getDescription(), ACTIVITY.ADD_BOOK);
         AddBookResponse response = modelMapper.map(book, AddBookResponse.class);
+        response.setMessage("Book added successfully");
         response.setLogId(log.getId());
         return  response;
     }
+
 
 
     private void validateUserRole(AddBookRequest request) {
@@ -181,6 +194,7 @@ public class UserServiceImplementation implements UserService {
         returnBookResponse.setMessage("Book returned successfully");
         return returnBookResponse;
     }
+
 
     @Override
     public UserResponse getUserById(Long userId) {

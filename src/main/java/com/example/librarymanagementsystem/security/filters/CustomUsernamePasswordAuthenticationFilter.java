@@ -25,7 +25,12 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 public class CustomUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+    private static final Logger logger = LoggerFactory.getLogger(CustomUsernamePasswordAuthenticationFilter.class);
     private final AuthenticationManager authManager;
     private final ObjectMapper mapper = new ObjectMapper();
     public CustomUsernamePasswordAuthenticationFilter(AuthenticationManager authManager) {
@@ -58,12 +63,15 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
                                             FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
 
+        logger.info("starting the successful authentication");
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setMessage("Successful authentication");
         loginResponse.setToken(generateAccessToken(authResult));
         loginResponse.setAuthority(authResult.getAuthorities().toString());
         loginResponse.setEmail(authResult.getPrincipal().toString());
         loginResponse.setRefreshToken(generateRefreshToken(authResult));
+        logger.info("Success ");
+        System.out.println(response);
 
         BaseResponse<LoginResponse> baseResponse = new BaseResponse<>();
         baseResponse.setData(loginResponse);
@@ -77,7 +85,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 
     private static String generateAccessToken(Authentication authResult) {
         return JWT.create()
-                .withIssuer("librarymanagementapi")
+                .withIssuer("librarymanagementsystem")
                 .withClaim("principal",authResult.getPrincipal().toString())
                 .withArrayClaim("roles",getClaimsFrom(authResult.getAuthorities()))
                 .withExpiresAt(Instant.now().plusSeconds(7 * 24 * 60 * 60))
@@ -109,7 +117,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 
     private String generateRefreshToken(Authentication authentication) {
         return JWT.create()
-                .withIssuer("librarymanagementapi")
+                .withIssuer("librarymanagementsystem")
                 .withClaim("principal",authentication.getPrincipal().toString())
                 .withArrayClaim("roles",getClaimsFrom(authentication.getAuthorities()))
                 .withExpiresAt(Instant.now().plusSeconds(7 * 24 * 60 * 60))

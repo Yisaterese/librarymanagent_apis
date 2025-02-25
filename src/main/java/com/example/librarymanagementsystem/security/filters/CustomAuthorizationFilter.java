@@ -38,7 +38,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         if(authorizationRequest != null) {
             String token = authorizationRequest.substring(JWT_PREFIX.length()).strip();
             JWTVerifier verifier = JWT.require(Algorithm.HMAC512("secret".getBytes()))
-                    .withIssuer("librarymanagementapi")
+                    .withIssuer("librarymanagementsystem")
                     .withClaimPresence("roles")
                     .withClaimPresence("principal")
                     .build();

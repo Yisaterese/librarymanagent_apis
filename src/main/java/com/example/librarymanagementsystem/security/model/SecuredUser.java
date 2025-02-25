@@ -17,6 +17,8 @@ public class SecuredUser implements UserDetails {
         return user.getRoles().stream().map(authority
                         -> new SimpleGrantedAuthority(authority.name()))
                 .toList();
+
+
     }
 
     @Override

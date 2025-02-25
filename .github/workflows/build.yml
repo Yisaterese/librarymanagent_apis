@@ -1,16 +1,16 @@
-name: Build and Deploy Docker Image
+name: Build and Push Docker Image
 
 on:
   push:
     branches:
-      - main  # Triggers on pushes to the main branch; adjust as necessary
+      - main  # Triggers on pushes to the main branch
   pull_request:
     branches:
       - main
 
 jobs:
   build:
-    runs-on: ubuntu@latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out the code
@@ -31,9 +31,9 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: josephyisa/librarymanagementapi:latest
+          tags: josephyisa/librarymanagementsystem:latest
 
-      - name: Set up Cloudinary
+      - name: Set up Cloudinary and Database Environment Variables
         run: |
           echo "CLOUDINARY_API_NAME=${{ secrets.cloudinaryApiName }}" >> $GITHUB_ENV
           echo "CLOUDINARY_API_KEY=${{ secrets.cloudinaryApiKey }}" >> $GITHUB_ENV

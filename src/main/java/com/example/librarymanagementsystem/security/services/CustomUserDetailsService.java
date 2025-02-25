@@ -2,6 +2,7 @@ package com.example.librarymanagementsystem.security.services;
 
 import com.example.librarymanagementsystem.data.model.User;
 import com.example.librarymanagementsystem.data.repository.UserRepository;
+import com.example.librarymanagementsystem.security.model.SecuredUser;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +16,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User foundUser = userRepository.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("user not found"));
-        return null;
+        return new SecuredUser(foundUser);
     }
 }

@@ -56,6 +56,7 @@ public class BookServiceImplementation implements BookService {
     }
 
 
+
     private void validateRequest(AddBookRequest request) {
         if (request.getIsbn() == null || request.getIsbn().trim().isEmpty()) {
             throw new IllegalArgumentException("ISBN cannot be empty or whitespace.");
