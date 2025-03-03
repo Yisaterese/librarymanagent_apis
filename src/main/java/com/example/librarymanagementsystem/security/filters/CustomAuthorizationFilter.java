@@ -35,6 +35,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         boolean isRequestPathPublic = PUBLIC_ENDPOINT.contains(requestPath);
         if(isRequestPathPublic) filterChain.doFilter(request,response);
         String authorizationRequest = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         if(authorizationRequest != null) {
             String token = authorizationRequest.substring(JWT_PREFIX.length()).strip();
             JWTVerifier verifier = JWT.require(Algorithm.HMAC512("secret".getBytes()))

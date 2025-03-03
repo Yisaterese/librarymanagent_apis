@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ import static com.example.librarymanagementsystem.data.constant.ROLE.ADMIN;
 import static com.example.librarymanagementsystem.data.constant.ROLE.USER;
 import static com.example.librarymanagementsystem.data.constant.STATUS.BORROWED;
 
-
+@Slf4j
 @Service
 public class UserServiceImplementation implements UserService {
    private final UserRepository userRepository;
@@ -199,6 +200,7 @@ public class UserServiceImplementation implements UserService {
     @Override
     public UserResponse getUserById(Long userId) {
         User user = getUser(userId);
+        log.info("user {}",user );
         return modelMapper.map(user, UserResponse.class);
     }
     private  User getUser(Long userId) {

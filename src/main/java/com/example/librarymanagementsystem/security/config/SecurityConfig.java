@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -30,16 +31,19 @@ public class SecurityConfig {
         return http.csrf(c -> c.disable())
                 .cors(c -> c.disable())
                 .sessionManagement(c -> c.sessionCreationPolicy(STATELESS))
-                .addFilterAt(authenticationFilter, BasicAuthenticationFilter.class)
+                .addFilterAt(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(customAuthorizationFilter, CustomUsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(c -> c
                         .requestMatchers("/api/auth").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers("/api/book/**").permitAll()
-                        .requestMatchers("/api/users/add_book").hasRole(ROLE.ADMIN.toString()) // Only ADMIN can add books
-                        .requestMatchers("/api/users/delete_user/").hasRole(ROLE.ADMIN.toString()) // Only ADMIN can delete users
-                        .anyRequest().authenticated() // Require authentication for all other endpoints
+                        .requestMatchers("/api/users/register").permitAll()
+                        .requestMatchers("/api/book/get-books").permitAll()
+                        .requestMatchers("/api/book/update-book/{id}").hasAuthority(ROLE.ADMIN.toString())
+                        .requestMatchers("/api/book/delete-book/{id}").hasAuthority(ROLE.ADMIN.toString())
+                        .requestMatchers("/api/users/add_book").hasAuthority(ROLE.ADMIN.toString())
+                        .requestMatchers("/api/users/delete_user").hasAuthority(ROLE.ADMIN.toString())
+                        .requestMatchers("/api/users/assign-role/{userId}").hasAuthority(ROLE.ADMIN.toString())
+                        .anyRequest().authenticated()
+
                 ).build();
     }
-
 }

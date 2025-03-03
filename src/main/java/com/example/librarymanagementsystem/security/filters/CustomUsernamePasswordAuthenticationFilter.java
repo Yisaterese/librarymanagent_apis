@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -47,6 +48,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 
             String username = loginRequest.getEmail();
             String password = loginRequest.getPassword();
+
             Authentication authentication = new UsernamePasswordAuthenticationToken(username,password);
             Authentication authenticationResult = authManager.authenticate(authentication);
             SecurityContextHolder.getContext().setAuthentication(authenticationResult);
@@ -67,8 +69,11 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setMessage("Successful authentication");
         loginResponse.setToken(generateAccessToken(authResult));
+        logger.info("authorities {} ",authResult.getAuthorities());
+
         loginResponse.setAuthority(authResult.getAuthorities().toString());
-        loginResponse.setEmail(authResult.getPrincipal().toString());
+        UserDetails userDetails = (UserDetails) authResult.getPrincipal();
+        loginResponse.setEmail(userDetails.getUsername());
         loginResponse.setRefreshToken(generateRefreshToken(authResult));
         logger.info("Success ");
         System.out.println(response);
